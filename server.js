@@ -5,6 +5,7 @@ const sequelize_bot = require('./utils/database_bot')
 
 const userRouter = require('./routes/user')
 
+
 const express = require('express');
 
 const app = express();
@@ -14,13 +15,8 @@ app.use(express.json())
 
 app.use('/api/v1', userRouter)
 
+app.use('/api/v1', tagRouter)
 
-
-
-
-app.get('/',(req,res)=>{
-        res.json('hello world!!')
-})
 
 
 async function start() {
