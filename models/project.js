@@ -1,6 +1,6 @@
 const {DataTypes} = require('sequelize');
 
-const sequelize_project = require('../utils/sequelize_project')
+const sequelize_project = require('../utils/database_projects')
 
 
 const Project = sequelize_project.define('list', {

@@ -58,6 +58,42 @@ router.get('/users/list', async (req, res) => {
       })
     }
 })
+
+
+router.put('/user/project_type/update/:userid', async (req,res)=>{
+    try{
+      const user = await User.findOne({ where: { chatId: req.params.userid } })
+      console.log( await req.body)
+      let project_type_new = await req.body.data.type;
+      console.log( 'project_type_new', project_type_new)
+      user.project_type = await project_type_new;
+      await user.save();
+      res.status(200).json({status: "Succsess",result: {"project_type":  user.project_type}})
+    }catch(e){
+      console.log(e)
+      res.status(500).json({
+        message: 'Server error'
+      })
+    }
+})
+
+router.put('/user/autoupdate/update/:userid', async (req,res)=>{
+    try{
+      const user = await User.findOne({ where: { chatId: req.params.userid } })
+      console.log( await req.body)
+      let autoupdate_new = await req.body.data.autoupdate;
+      console.log( 'autoupdate', autoupdate_new)
+      user.autoupdate = await autoupdate_new;
+      await user.save();
+      res.status(200).json({status: "Succsess",result: {"autoupdate":  user.autoupdate}})
+    }catch(e){
+      console.log(e)
+      res.status(500).json({
+        message: 'Server error'
+      })
+    }
+})
+
   
 
   router.post('/user/create', async (req, res) => {

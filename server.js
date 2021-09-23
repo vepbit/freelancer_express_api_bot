@@ -6,6 +6,10 @@ const sequelize_bot = require('./utils/database_bot')
 const userRouter = require('./routes/user')
 
 
+const projectRouter = require('./routes/project')
+
+
+
 const express = require('express');
 
 const app = express();
@@ -15,7 +19,9 @@ app.use(express.json())
 
 app.use('/api/v1', userRouter)
 
-app.use('/api/v1', tagRouter)
+app.use('/api/v1', projectRouter)
+
+
 
 
 
