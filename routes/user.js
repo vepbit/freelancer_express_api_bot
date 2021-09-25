@@ -1,6 +1,12 @@
 const {Router} = require('express')
 const User = require('../models/user')
+
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
 const router = Router()
+
+
 
 
 // Получение списка задач
@@ -15,6 +21,30 @@ router.get('/users/list', async (req, res) => {
       })
     }
   })
+
+
+  router.get('/users/listautoupdate', async (req, res) => {
+    try {
+      const users = await User.findAll({
+        where: {
+          autoupdate: {
+            [Op.like]: '%on%'
+          }
+        },
+        order: [
+            ['id', 'DESC'],
+        ],
+
+      })
+      res.status(200).json({status: "Succsess",result: {"data": users}})
+    } catch (e) {
+      console.log(e)
+      res.status(500).json({
+        message: 'Server error'
+      })
+    }
+  })
+
 
   router.get('/user/:id', async (req, res) => {
     try {
@@ -41,16 +71,13 @@ router.get('/users/list', async (req, res) => {
         })
       }
   })
-
-
-  router.put('/user/tag/add/:userid', async (req,res)=>{
+  
+  router.get('/user/tagcustom/list/:userid', async (req,res)=>{
     try{
       const user = await User.findOne({ where: { chatId: req.params.userid } })
-      console.log( await req.body)
-      let tags_active_new = await req.body.data.tags;
-      user.tags = await tags_active_new;
-      await user.save();
-      res.status(200).json(user.tags)
+      const tags_custom_active = await user.tags_custom
+      // console.log(tags_active)
+      res.status(200).json({status: "Succsess",result: {"tags_custom": tags_custom_active}})
     }catch(e){
       console.log(e)
       res.status(500).json({
@@ -59,6 +86,38 @@ router.get('/users/list', async (req, res) => {
     }
 })
 
+  router.put('/user/tag/add/:userid', async (req,res)=>{
+    try{
+      const user = await User.findOne({ where: { chatId: req.params.userid } })
+      console.log( await req.body)
+      let tags_active_new = await req.body.data.tags;
+      user.tags = await tags_active_new;
+      await user.save();
+    //   console.log(req)
+      res.status(200).json(user.tags)
+    }catch(e){
+      console.log(e)
+      res.status(500).json({
+        message: 'Server error'
+      })
+    }
+})
+router.put('/user/tagcustom/add/:userid', async (req,res)=>{
+    try{
+      const user = await User.findOne({ where: { chatId: req.params.userid } })
+      console.log( await req.body)
+      let tags_active_new = await req.body.data.tags_custom;
+      user.tags_custom = await tags_active_new;
+      await user.save();
+      console.log(req)
+      res.status(200).json(user.tags_custom)
+    }catch(e){
+      console.log(e)
+      res.status(500).json({
+        message: 'Server error'
+      })
+    }
+})
 
 router.put('/user/project_type/update/:userid', async (req,res)=>{
     try{
