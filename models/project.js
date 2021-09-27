@@ -2,7 +2,6 @@ const {DataTypes} = require('sequelize');
 
 const sequelize_project = require('../utils/database_projects')
 
-
 const Project = sequelize_project.define('list', {
     id: {type: DataTypes.INTEGER, primaryKey: true, unique: true, autoIncrement: true},
     title: {type: DataTypes.STRING},
@@ -20,10 +19,9 @@ const Project = sequelize_project.define('list', {
     verified_ident: {type: DataTypes.INTEGER},
     verifiedpayment: {type: DataTypes.INTEGER},
     country:{type: DataTypes.STRING}
-},{
-    tableName: "list"
-   }
-   );
+    },{
+        tableName: "list"
+    }
+);
 
-
-   module.exports = Project;
+module.exports = Project;
