@@ -1,6 +1,13 @@
 const {Router} = require('express');
 const Sequelize = require('sequelize');
 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const authMiddleware = require('./../middlewaree/authMiddleware')
+const roleMiddleware = require('./../middlewaree/roleMiddleware')
+
+
 const Op = Sequelize.Op;
 
 const User = require('../models/user');
@@ -8,15 +15,26 @@ const User = require('../models/user');
 const router = Router();
 
 
+
+
+const SECRET = process.env.SECRET
+
+const generateAccessToken = (id, role) => {
+    const payload = {
+        id,
+        role
+    }
+    return jwt.sign(payload, SECRET, {expiresIn: "24h"} )
+}
+
+
 // i get list of users
-router.get('/users/list', async (req, res) => {
+router.get('/users/list', roleMiddleware(['1']),async (req, res) => {
     try {
         const users = await User.findAll()
         res.status(200).json(users)
     } catch (e) {
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -26,24 +44,49 @@ router.post('/user/create', async (req, res) => {
         const user = await User.findOne({ where: { chatId: req.body.data.id } })
         let candidate = '';
         let data = await req.body.data;
+
+        const hashPassword = data.password ? bcrypt.hashSync(data.password, 7) : '';
+
         if(!user){
             candidate = await User.create({
                 chatId: data.id,
                 user_data: JSON.stringify(data),
+                password: hashPassword
             })
             res.status(200).json(data)
         }else{
-            res.status(209).json({
-                status: 'error',
-                message:'Chat id exist'
-            })
+            res.status(209).json({status: 'Error', message:'Chat id is exist'})
         }
     } catch (e) {
-        res.status(500).json({
-            message: 'Server error'
-        })
+        console.log(e);
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
+
+router.post('/user/login', async (req, res) => {
+    try {
+        // console.log(req.body.data);
+        const  {id, password} = await req.body.data;
+        const user = await User.findOne({ where: { chatId: id } })
+
+        const theSamePassword = bcrypt.compareSync(password, user.password);
+
+        if(!theSamePassword){
+            return res.status(400).json({status: "Error",result: "Wrong password"})
+        }
+        // console.log('roles in route: ',user.role)
+
+        const token = generateAccessToken(user.chatId, user.role)
+        return res.json({token})
+
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({status: "Error",result: "Server error"})
+    }
+})
+
+
+
 
 // i get user by id
 router.get('/user/:id', async (req, res) => {
@@ -51,9 +94,7 @@ router.get('/user/:id', async (req, res) => {
         const user = await User.findOne({ where: { chatId: req.params.id } })
         res.status(200).json({user})
     } catch (e) {
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -72,9 +113,7 @@ router.get('/users/autoupdate', async (req, res) => {
         })
         res.status(200).json({status: "Succsess",result: {"data": users}})
     } catch (e) {
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -86,9 +125,7 @@ router.get('/user/tag/list/:userid', async (req,res)=>{
         // console.log(tags_active)
         res.status(200).json({status: "Succsess",result: {"tags": tags_active}})
     }catch(e){
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -100,9 +137,7 @@ router.get('/user/tagcustom/list/:userid', async (req,res)=>{
         // console.log(tags_active)
         res.status(200).json({status: "Succsess",result: {"tags_custom": tags_custom_active}})
     }catch(e){
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -115,9 +150,7 @@ router.put('/user/tag/add/:userid', async (req,res)=>{
         await user.save();
         res.status(200).json(user.tags)
     }catch(e){
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -131,9 +164,7 @@ router.put('/user/tagcustom/add/:userid', async (req,res)=>{
         await user.save();
         res.status(200).json(user.tags_custom)
     }catch(e){
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -146,9 +177,7 @@ router.put('/user/project_type/update/:userid', async (req,res)=>{
         await user.save();
         res.status(200).json({status: "Succsess",result: {"project_type":  user.project_type}})
     }catch(e){
-      res.status(500).json({
-        message: 'Server error'
-      })
+      res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 
@@ -161,9 +190,7 @@ router.put('/user/autoupdate/update/:userid', async (req,res)=>{
         await user.save();
         res.status(200).json({status: "Succsess",result: {"autoupdate":  user.autoupdate}})
     }catch(e){
-        res.status(500).json({
-            message: 'Server error'
-        })
+        res.status(500).json({status: "Error",result: "Server error"})
     }
 })
 

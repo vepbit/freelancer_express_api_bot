@@ -70,9 +70,7 @@ router.post('/project/list', async (req, res) => {
             return res.status(200).json(projects)
         }
     } catch (e) {
-      res.status(500).json({
-          message: 'Server error'
-      })
+      res.status(500).json({status: "Error",result: "Server error"})
     }
   })
 

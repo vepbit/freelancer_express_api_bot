@@ -10,7 +10,9 @@ const User = database_user.define('user', {
     project_time_ago:{type: DataTypes.STRING},
     project_type: {type: DataTypes.STRING, defaultValue: 'all'},
     user_data: {type: DataTypes.STRING},
-    tags_custom: {type: DataTypes.STRING, defaultValue: ''}
+    tags_custom: {type: DataTypes.STRING, defaultValue: ''},
+    role: {type: DataTypes.INTEGER,defaultValue: 2},
+    password: {type: DataTypes.STRING}
 });
 
 module.exports = User;
