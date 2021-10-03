@@ -13,9 +13,9 @@ const Op = Sequelize.Op;
 const User = require('../models/user');
 const Role = require('../models/role');
 
-
+// because of it we have new column with roleid 
 User.belongsTo(Role, { as: 'role'})
-Role.hasMany(User, { as :'users'});
+Role.hasMany(User, { as :'user'});
 
 const router = Router();
 
@@ -34,11 +34,13 @@ const generateAccessToken = (id, roleid) => {
 
 
 // i get list of users
-router.get('/users/list', roleMiddleware(['1']),async (req, res) => {
+router.get('/users/list', roleMiddleware(1),async (req, res) => {
     try {
-        const users = await User.findAll()
+        // in field role we put name of table
+        const users = await User.findAll({ include: { model: Role, as: 'role' } })
         res.status(200).json(users)
     } catch (e) {
+        console.log(e);
         res.status(500).json({status: "Error",result: "Server error"})
     }
 })
@@ -82,7 +84,7 @@ router.post('/user/login', async (req, res) => {
         }
         // console.log('roles in route: ',user.role)
 
-        const token = generateAccessToken(user.chatId, user.roleid)
+        const token = generateAccessToken(user.chatId, user.roleId)
         return res.json({token})
 
     } catch (e) {
@@ -97,9 +99,9 @@ router.post('/user/login', async (req, res) => {
 // i get user by id
 router.get('/user/:id', async (req, res) => {
     try {
-        const user = await User.findOne({ where: { chatId: req.params.id },
+        const user = await User.findOne({ where: { chatId: req.params.id },include: { model: Role, as: 'role' },  attributes: { exclude: ['roleId'] } 
         },
-        {include: ['users']})
+        {include: ['user']})
         console.log(user);
         res.status(200).json({user})
     } catch (e) {

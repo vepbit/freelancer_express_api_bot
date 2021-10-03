@@ -17,9 +17,9 @@ module.exports = function (alllowRole) {
             const decodedData = jwt.verify(token, SECRET)
             let hasRole = false
             console.log('decodedData',decodedData);
-            // console.log('userRoles',userRoles);
+            console.log('alllowRole',alllowRole);
 
-            if (decodedData.role.includes(alllowRole)) {
+            if (decodedData.roleid ===alllowRole) {
                 hasRole = true
             }
 
