@@ -11,6 +11,11 @@ const roleMiddleware = require('./../middlewaree/roleMiddleware')
 const Op = Sequelize.Op;
 
 const User = require('../models/user');
+const Role = require('../models/role');
+
+
+User.belongsTo(Role, { as: 'role'})
+Role.hasMany(User, { as :'users'});
 
 const router = Router();
 
@@ -19,10 +24,10 @@ const router = Router();
 
 const SECRET = process.env.SECRET
 
-const generateAccessToken = (id, role) => {
+const generateAccessToken = (id, roleid) => {
     const payload = {
         id,
-        role
+        roleid
     }
     return jwt.sign(payload, SECRET, {expiresIn: "24h"} )
 }
@@ -51,7 +56,8 @@ router.post('/user/create', async (req, res) => {
             candidate = await User.create({
                 chatId: data.id,
                 user_data: JSON.stringify(data),
-                password: hashPassword
+                password: hashPassword,
+                roleId: data.roleId
             })
             res.status(200).json(data)
         }else{
@@ -76,7 +82,7 @@ router.post('/user/login', async (req, res) => {
         }
         // console.log('roles in route: ',user.role)
 
-        const token = generateAccessToken(user.chatId, user.role)
+        const token = generateAccessToken(user.chatId, user.roleid)
         return res.json({token})
 
     } catch (e) {
@@ -91,9 +97,13 @@ router.post('/user/login', async (req, res) => {
 // i get user by id
 router.get('/user/:id', async (req, res) => {
     try {
-        const user = await User.findOne({ where: { chatId: req.params.id } })
+        const user = await User.findOne({ where: { chatId: req.params.id },
+        },
+        {include: ['users']})
+        console.log(user);
         res.status(200).json({user})
     } catch (e) {
+        console.log(e);
         res.status(500).json({status: "Error",result: "Server error"})
     }
 })

@@ -19,6 +19,7 @@ app.use(express.json())
 app.use('/api/v1', userRouter)
 app.use('/api/v1', projectRouter)
 
+
 async function startServer() {
     try {
       await sequelize_user.sync()
