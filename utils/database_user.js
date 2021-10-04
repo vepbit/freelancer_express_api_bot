@@ -9,7 +9,7 @@ const HOST = process.env.HOST_BOT
 const sequelize_user = new Sequelize(DB_NAME, USER_NAME, PASSWORD, {
     host: HOST,
     dialect: 'mysql',
-    operatorsAliases: false
+    operatorsAliases: 0
 })
 
 module.exports = sequelize_user

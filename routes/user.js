@@ -102,8 +102,16 @@ router.get('/user/:id', async (req, res) => {
         const user = await User.findOne({ where: { chatId: req.params.id },include: { model: Role, as: 'role' },  attributes: { exclude: ['roleId'] } 
         },
         {include: ['user']})
-        console.log(user);
-        res.status(200).json({user})
+
+
+        if(!user){
+            res.status(400).json({status: "Error",result: "User does not exist"})
+        }else{
+            res.status(200).json({user})
+        }
+
+        // console.log(user);
+
     } catch (e) {
         console.log(e);
         res.status(500).json({status: "Error",result: "Server error"})
