@@ -4,8 +4,8 @@ const Sequelize = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = require('./../middlewaree/authMiddleware')
-const roleMiddleware = require('./../middlewaree/roleMiddleware')
+// const authMiddleware = require('./../middlewaree/authMiddleware')
+const roleMiddleware = require('./../middlewaree/roleMiddleware');
 
 
 const Op = Sequelize.Op;

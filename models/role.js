@@ -1,8 +1,7 @@
 const {DataTypes} = require('sequelize');
 
-const database_user = require('../utils/database_user')
+const database_user = require('../utils/database_user');
 
-const User = require('../models/user')
 
 const Role = database_user.define('role', {
     id: {type: DataTypes.INTEGER, primaryKey: true, unique: true, autoIncrement: true},

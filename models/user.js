@@ -1,8 +1,7 @@
 const {DataTypes} = require('sequelize');
 
-const database_user = require('../utils/database_user')
+const database_user = require('../utils/database_user');
 
-const Role = require('../models/role')
 
 const User = database_user.define('user', {
     id: {type: DataTypes.INTEGER, primaryKey: true,  autoIncrement: true},
@@ -15,8 +14,6 @@ const User = database_user.define('user', {
     tags_custom: {type: DataTypes.STRING, defaultValue: ''},
     password: {type: DataTypes.STRING}
 });
-
-
 
 
 module.exports = User;

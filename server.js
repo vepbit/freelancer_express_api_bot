@@ -7,7 +7,7 @@ const DOMAIN = process.env.DOMAIN || 'http://localhost';
 // database for bot
 const sequelize_user = require('./utils/database_user')
 
-// routs fro 
+// routs
 const userRouter = require('./routes/user')
 const projectRouter = require('./routes/project')
 
@@ -30,7 +30,7 @@ async function startServer() {
     }
 }
   
-startServer()
+startServer();
 
 
 module.exports = app
