@@ -45,6 +45,11 @@ router.get('/users/list', roleMiddleware(1),async (req, res) => {
     }
 })
 
+router.get("/users", function(request, response){
+    response.end("Hello from Users!");
+});
+
+
 // i create user
 router.post('/user/create', async (req, res) => {
     try {

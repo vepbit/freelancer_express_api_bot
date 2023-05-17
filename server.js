@@ -1,6 +1,6 @@
 require('dotenv').config()
-const PORT = process.env.PORT || 3333;
-const DOMAIN = process.env.DOMAIN || 'http://localhost';
+const PORT = process.env.PORT || 4444;
+const DOMAIN = process.env.DOMAIN || 'http://freelancer.express.lil.vepbit.com';
 
 
 
