@@ -1,8 +1,6 @@
 require('dotenv').config()
 const PORT = process.env.PORT || 4444;
-const DOMAIN = process.env.DOMAIN || 'http://freelancer.express.lil.vepbit.com';
-
-
+const DOMAIN = process.env.DOMAIN || 'localhost';
 
 // database for bot
 const sequelize_user = require('./utils/database_user')
@@ -21,15 +19,15 @@ app.use('/api/v1', projectRouter)
 
 
 async function startServer() {
-    try {
-      await sequelize_user.sync()
-      app.listen(PORT)
-      console.log(`Server are started at ${DOMAIN}:${PORT}`)
-    } catch (e) {
-      console.log(e)
-    }
+  try {
+    await sequelize_user.sync()
+    app.listen(PORT)
+    console.log(`Server are started at ${DOMAIN}:${PORT}`)
+  } catch (e) {
+    console.log(e)
+  }
 }
-  
+
 startServer();
 
 

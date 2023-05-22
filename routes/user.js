@@ -1,4 +1,4 @@
-const {Router} = require('express');
+const { Router } = require('express');
 const Sequelize = require('sequelize');
 
 const bcrypt = require('bcryptjs');
@@ -14,13 +14,10 @@ const User = require('../models/user');
 const Role = require('../models/role');
 
 // because of it we have new column with roleid 
-User.belongsTo(Role, { as: 'role'})
-Role.hasMany(User, { as :'user'});
+User.belongsTo(Role, { as: 'role' })
+Role.hasMany(User, { as: 'user' });
 
 const router = Router();
-
-
-
 
 const SECRET = process.env.SECRET
 
@@ -29,28 +26,28 @@ const generateAccessToken = (id, roleid) => {
         id,
         roleid
     }
-    return jwt.sign(payload, SECRET, {expiresIn: "24h"} )
+    return jwt.sign(payload, SECRET, { expiresIn: "24h" })
 }
 
 
-// i get list of users
-router.get('/users/list', roleMiddleware(1),async (req, res) => {
+// I get list of users
+router.get('/users/list', roleMiddleware(1), async (req, res) => {
     try {
         // in field role we put name of table
         const users = await User.findAll({ include: { model: Role, as: 'role' } })
         res.status(200).json(users)
     } catch (e) {
         console.log(e);
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-router.get("/users", function(request, response){
+router.get("/users", function (request, response) {
     response.end("Hello from Users!");
 });
 
 
-// i create user
+// I create user
 router.post('/user/create', async (req, res) => {
     try {
         const user = await User.findOne({ where: { chatId: req.body.data.id } })
@@ -59,7 +56,7 @@ router.post('/user/create', async (req, res) => {
 
         const hashPassword = data.password ? bcrypt.hashSync(data.password, 7) : '';
 
-        if(!user){
+        if (!user) {
             candidate = await User.create({
                 chatId: data.id,
                 user_data: JSON.stringify(data),
@@ -67,63 +64,64 @@ router.post('/user/create', async (req, res) => {
                 roleId: data.roleId
             })
             res.status(200).json(data)
-        }else{
-            res.status(209).json({status: 'Error', message:'Chat id is exist'})
+        } else {
+            res.status(209).json({ status: 'Error', message: 'Chat id is exist' })
         }
     } catch (e) {
         console.log(e);
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
 router.post('/user/login', async (req, res) => {
     try {
         // console.log(req.body.data);
-        const  {id, password} = await req.body.data;
+        const { id, password } = await req.body.data;
         const user = await User.findOne({ where: { chatId: id } })
 
         const theSamePassword = bcrypt.compareSync(password, user.password);
 
-        if(!theSamePassword){
-            return res.status(400).json({status: "Error",result: "Wrong password"})
+        if (!theSamePassword) {
+            return res.status(400).json({ status: "Error", result: "Wrong password" })
         }
         // console.log('roles in route: ',user.role)
 
         const token = generateAccessToken(user.chatId, user.roleId)
-        return res.json({token})
+        return res.json({ token })
 
     } catch (e) {
         console.log(e);
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
 
 
 
-// i get user by id
+// I get user by id
 router.get('/user/:id', async (req, res) => {
     try {
-        const user = await User.findOne({ where: { chatId: req.params.id },include: { model: Role, as: 'role' },  attributes: { exclude: ['roleId'] } 
+        const user = await User.findOne({
+            where: { chatId: req.params.id }, include: { model: Role, as: 'role' }, attributes: { exclude: ['roleId'] }
         },
-        {include: ['user']})
+            { include: ['user'] })
 
 
-        if(!user){
-            res.status(200).json({status: "Error",result: "User does not exist"})
-        }else{
-            res.status(200).json({user})
+        if (!user) {
+            res.status(200).json({ status: "Error", result: "User does not exist" })
+        } else {
+            res.status(200).json({ user })
         }
 
         // console.log(user);
 
-    }catch(e){
+    } catch (e) {
         console.log(e);
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-// i change autoupdate status
+// I change autoupdate status
 router.get('/users/autoupdate', async (req, res) => {
     try {
         const users = await User.findAll({
@@ -136,86 +134,86 @@ router.get('/users/autoupdate', async (req, res) => {
                 ['id', 'DESC'],
             ],
         })
-        res.status(200).json({status: "Succsess",result: {"data": users}})
+        res.status(200).json({ status: "Succsess", result: { "data": users } })
     } catch (e) {
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-//  i get list of user's tag
-router.get('/user/tag/list/:userid', async (req,res)=>{
-    try{
+//  I get list of user's tag
+router.get('/user/tag/list/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
         const tags_active = await user.tags
         // console.log(tags_active)
-        res.status(200).json({status: "Succsess",result: {"tags": tags_active}})
-    }catch(e){
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(200).json({ status: "Succsess", result: { "tags": tags_active } })
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-//  i get list of user's custom tag
-router.get('/user/tagcustom/list/:userid', async (req,res)=>{
-    try{
+//  I get list of user's custom tag
+router.get('/user/tagcustom/list/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
         const tags_custom_active = await user.tags_custom
         // console.log(tags_active)
-        res.status(200).json({status: "Succsess",result: {"tags_custom": tags_custom_active}})
-    }catch(e){
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(200).json({ status: "Succsess", result: { "tags_custom": tags_custom_active } })
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-//  i add tag to user
-router.put('/user/tag/add/:userid', async (req,res)=>{
-    try{
+//  I add tag to user
+router.put('/user/tag/add/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
         let tags_active_new = await req.body.data.tags;
         user.tags = await tags_active_new;
         await user.save();
         res.status(200).json(user.tags)
-    }catch(e){
-        res.status(500).json({status: "Error",result: "Server error"})
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-//  i add custom tag to user
-router.put('/user/tagcustom/add/:userid', async (req,res)=>{
-    try{
+//  I add custom tag to user
+router.put('/user/tagcustom/add/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
-        console.log( await req.body)
+        console.log(await req.body)
         let tags_active_new = await req.body.data.tags_custom;
         user.tags_custom = await tags_active_new;
         await user.save();
         res.status(200).json(user.tags_custom)
-    }catch(e){
-        res.status(500).json({status: "Error",result: "Server error"})
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-//  i change project type to user
-router.put('/user/project_type/update/:userid', async (req,res)=>{
-    try{
+//  I change project type to user
+router.put('/user/project_type/update/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
         let project_type_new = await req.body.data.type;
         user.project_type = await project_type_new;
         await user.save();
-        res.status(200).json({status: "Succsess",result: {"project_type":  user.project_type}})
-    }catch(e){
-      res.status(500).json({status: "Error",result: "Server error"})
+        res.status(200).json({ status: "Succsess", result: { "project_type": user.project_type } })
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 
-// i change autoupdate status
-router.put('/user/autoupdate/update/:userid', async (req,res)=>{
-    try{
+// I change autoupdate status
+router.put('/user/autoupdate/update/:userid', async (req, res) => {
+    try {
         const user = await User.findOne({ where: { chatId: req.params.userid } })
         let autoupdate_new = await req.body.data.autoupdate;
         user.autoupdate = await autoupdate_new;
         await user.save();
-        res.status(200).json({status: "Succsess",result: {"autoupdate":  user.autoupdate}})
-    }catch(e){
-        res.status(500).json({status: "Error",result: "Server error"})
+        res.status(200).json({ status: "Succsess", result: { "autoupdate": user.autoupdate } })
+    } catch (e) {
+        res.status(500).json({ status: "Error", result: "Server error" })
     }
 })
 

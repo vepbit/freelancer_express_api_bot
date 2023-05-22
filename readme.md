@@ -1,2 +1,1 @@
-This is an APIs created via  Express.js for Telegram bot. 
-This apis integrated with MySQL through Sequelize ORM.
+This is an API created using Express.js for a Telegram bot that is integrated with MySQL through the Sequelize ORM.
